@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SchoolDesktop
@@ -14,9 +15,9 @@ namespace SchoolDesktop
             _httpClient = new HttpClient();
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
-            var token = Authenticate(txtUsername.Text, txtPassword.Text);
+            var token = await Authenticate(txtUsername.Text, txtPassword.Text);
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -29,12 +30,12 @@ namespace SchoolDesktop
                 MessageBox.Show("Invalid credentials. Please try again.");
             }
         }
-        private string Authenticate(string username, string password)
+        private async Task<string> Authenticate(string username, string password)
         {
             try
             {
-                var response = _httpClient.PostAsync("https://localhost:7253/api/Token/token", new StringContent($"{{\"Login\":\"{username}\",\"Password\":\"{password}\"}}", Encoding.UTF8, "application/json")).Result;
-                var token = response.Content.ReadAsStringAsync().Result;
+                var response = await _httpClient.PostAsync("https://localhost:7253/api/Token/token", new StringContent($"{{\"Login\":\"{username}\",\"Password\":\"{password}\"}}", Encoding.UTF8, "application/json"));
+                var token = await response.Content.ReadAsStringAsync();
                 return response.IsSuccessStatusCode ? token : null;
             }
             catch (Exception ex)
